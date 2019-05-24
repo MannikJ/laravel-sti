@@ -1,0 +1,59 @@
+{
+    "name": "mannikj/laravel-sti",
+    "description": "",
+    "keywords": [
+        "mannikj",
+        "laravel",
+        "STI",
+        "laravel-sti",
+        "single table inheritance",
+        "eloquent",
+        "model",
+        "trait"
+    ],
+    "homepage": "https://github.com/mannikj/laravel-sti",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jannik Malken",
+            "email": "mannikj@web.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "illuminate/support": "5.8.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "3.8.*",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MannikJ\\Laravel\\SingleTableInheritance\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MannikJ\\Laravel\\SingleTableInheritance\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit tests --colors=always --verbose --testdox",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MannikJ\\Laravel\\SingleTableInheritance\\SingleTableInheritanceServiceProvider"
+            ],
+            "aliases": {
+                "STI": "MannikJ\\Laravel\\SingleTableInheritance\\SingleTableInheritanceFacade"
+            }
+        }
+    }
+}
