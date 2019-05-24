@@ -5,7 +5,7 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/mannikj/laravel-sti.svg?style=flat-square)](https://scrutinizer-ci.com/g/mannikj/laravel-sti)
 [![Total Downloads](https://img.shields.io/packagist/dt/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+This package provices a trait you can use to make your eloquent models capable of single table inheritance. ###If configured properly, queries will automatically return the instances of the correct model subclasses based on their type column.
 
 ## Installation
 
@@ -17,9 +17,38 @@ composer require mannikj/laravel-sti
 
 ## Usage
 
-``` php
-// Usage description here
+### Migration
+
+The table you want to apply single table inheritance to must incorporate a type column.
+
+The `STI` facade provides a helper to create the type column.
+
+```php
+Schema::table('table', function (Blueprint $table) {
+    \STI::column($table)->nullable();
+});
 ```
+
+### Trait
+
+You need to add the `SingleTableInheritance` trait to your root model class.
+The sub models need to extend the root class.
+
+``` php
+use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
+
+class Root {
+    use SingleTableInheritance;
+}
+
+class Sub1 extends Root {}
+
+class Sub2 extends Root {}
+```
+For the default configuration no other configuration is needed.
+The trait will the class name of the subclasses as the type value
+and will scope the queries automatically and return the correct instance
+of subclasses.
 
 ### Testing
 
