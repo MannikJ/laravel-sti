@@ -5,7 +5,8 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/mannikj/laravel-sti.svg?style=flat-square)](https://scrutinizer-ci.com/g/mannikj/laravel-sti)
 [![Total Downloads](https://img.shields.io/packagist/dt/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 
-This package provices a trait you can use to make your eloquent models capable of single table inheritance. ###If configured properly, queries will automatically return the instances of the correct model subclasses based on their type column.
+This package provides a trait that makes your eloquent models capable of single table inheritance.
+If configured properly, queries will automatically return instances of the correct model subclasses according to the type column.
 
 ## Installation
 
@@ -45,10 +46,9 @@ class Sub1 extends Root {}
 
 class Sub2 extends Root {}
 ```
-For the default configuration no other configuration is needed.
-The trait will the class name of the subclasses as the type value
-and will scope the queries automatically and return the correct instance
-of subclasses.
+For the default usage no other configuration is needed.
+The trait will use the class name of the subclasses as the type, scope the queries accordingly and return the correct instances
+of subclasses all automatically.
 
 ### Testing
 
