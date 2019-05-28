@@ -48,7 +48,7 @@ trait SingleTableInheritance
 
     public function getTypeAttribute()
     {
-        $type = array_get($this->attributes, $this->getTypeColumn());
+        $type = $this->getModelClass($this->attributes);
         $type = Str::kebab(class_basename($type));
         return $type ?: null;
     }
@@ -65,12 +65,17 @@ trait SingleTableInheritance
         return $this->table;
     }
 
+    protected function getModelClass($attributes = [])
+    {
+        return array_get((array)$attributes, $this->getTypeColumn());
+    }
+
     /**
      * {@inheritDoc}
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
-        $class = array_get((array)$attributes, 'type');
+        $class = $this->getModelClass($attributes);
 
         $model = class_exists($class) ? new $class : $this;
 
