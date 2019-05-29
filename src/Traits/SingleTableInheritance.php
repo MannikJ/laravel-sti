@@ -57,7 +57,7 @@ trait SingleTableInheritance
         return $builder->where($prefixedTypeColumn, static::class);
     }
 
-    public static function handleSaved(Model $model)
+    public function handleSaved(Model $model)
     { }
 
     public function getMorphClass()

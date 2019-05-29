@@ -6,7 +6,6 @@ use MannikJ\Laravel\SingleTableInheritance\Tests\LaravelTest;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicle;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Car;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Ship;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Sub;
 
