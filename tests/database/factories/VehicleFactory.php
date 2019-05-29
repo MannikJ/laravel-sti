@@ -4,6 +4,7 @@ use Faker\Generator as Faker;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicle;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Car;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Ship;
 use Illuminate\Support\Str;
 
 $factory->define(Vehicle::class, function (Faker $faker) {
@@ -18,7 +19,8 @@ $factory->afterCreating(Vehicle::class, function ($vehicle) {
 
 $subclasses = [
     Car::class,
-    Plane::class
+    Plane::class,
+    Ship::class,
 ];
 
 $factory->state(Vehicle::class, 'random-type', function ($faker) use ($subclasses) {
@@ -28,11 +30,11 @@ $factory->state(Vehicle::class, 'random-type', function ($faker) use ($subclasse
 });
 
 foreach ($subclasses as $subclass) {
-    \Log::debug("FOREACH");
-    \Log::debug($subclass);
     $function = function (Faker $faker) use ($subclass) {
-        \Log::debug($subclass);
-        return ['type' => $subclass];
+        return [
+            'type' => $subclass,
+            'name' => $faker->name(),
+        ];
     };
 
     $factory->state(Vehicle::class, $subclass, $function);

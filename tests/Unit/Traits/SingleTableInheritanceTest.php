@@ -6,6 +6,9 @@ use MannikJ\Laravel\SingleTableInheritance\Tests\LaravelTest;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicle;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Car;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Ship;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Sub;
 
 class Test extends LaravelTest
 {
@@ -52,5 +55,36 @@ class Test extends LaravelTest
         $vehicle = factory(Vehicle::class)->states(Car::class)->create();
         $this->assertEquals(Vehicle::class, get_class($vehicle));
         $this->assertEquals(Car::class, get_class($vehicle->fresh()));
+    }
+
+    /** @test */
+    public function vehicle_belongs_to_category_category_has_vehicles()
+    {
+        $category = factory(Category::class)->create();
+        $vehicle = $category->vehicles()->create(['name' => 'test']);
+        $this->assertTrue($vehicle->category->exists());
+        $this->assertTrue($vehicle->category()->get()->contains($category));
+        $this->assertInstanceOf(Vehicle::class, $category->vehicles()->first());
+    }
+
+
+    /** @test */
+    public function can_resolve_type_from_related_model()
+    {
+        $category = factory(Category::class)->create(['class_name' => Sub::class]);
+        $super = $category->supers()->create(['name' => 'test']);
+        $this->assertTrue($super->category()->get()->contains($category));
+        $this->assertInstanceOf(Sub::class, $category->supers()->first());
+    }
+
+    /** @test */
+    public function custom_scope_through_related_model()
+    {
+        $category = factory(Category::class)->create(['class_name' => Sub::class]);
+        $category = factory(Category::class)->create(['class_name' => Child::class]);
+        $super = $category->supers()->create(['name' => 'test']);
+        $results = Sub::all();
+        $this->assertCount(1, $results);
+        $this->assertInstanceOf(Sub::class, $results->first());
     }
 }

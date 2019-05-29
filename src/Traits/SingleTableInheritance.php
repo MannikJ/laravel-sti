@@ -4,36 +4,60 @@ namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-
+use Illuminate\Database\Eloquent\Model;
 
 trait SingleTableInheritance
 {
-    protected $typeColumn;
-
     public function __construct(array $attributes = [])
     {
-        $typeColumn = $this->getTypeColumn();
-        if (!array_has($attributes, $typeColumn) && static::class != self::class) {
-            $this->attributes[$typeColumn] = static::class;
-        }
+        $this->applyTypeCharacteristics($attributes);
         parent::__construct($attributes);
+    }
+
+    public function applyTypeCharacteristics($attributes = [])
+    {
+        $typeColumn = $this->getTypeColumn();
+        $subType = $this->resolveSubTypeViaClass();
+        if (!$this->resolveTypeViaAttributes($attributes) && $this->resolveSubTypeViaClass()) {
+            $this->attributes[$typeColumn] = $subType;
+        }
     }
 
     protected static function boot()
     {
-        if (is_subclass_of(get_called_class(), get_class())) {
+        if (static::resolveSubTypeViaClass()) {
             static::addGlobalScope('type', function (Builder $builder) {
-                $prefixedTypeColumn = "{$builder->getModel()->getTable()}.{$builder->getModel()->getTypeColumn()}";
-                return $builder->where($prefixedTypeColumn, static::class);
+                static::typeScope($builder);
             });
         }
         static::saved(function ($model) {
-            $model->handleSaved();
+            $model->handleSaved($model);
         });
         parent::boot();
     }
 
-    public function handleSaved()
+    public static function resolveSubTypeViaClass()
+    {
+        return static::isSubclass() ? static::class : null;
+    }
+
+    public static function isSubclass()
+    {
+        return is_subclass_of(get_called_class(), static::getBaseModelClass());
+    }
+
+    public static function getBaseModelClass()
+    {
+        return self::class;
+    }
+
+    public static function typeScope(Builder $builder)
+    {
+        $prefixedTypeColumn = "{$builder->getModel()->getTable()}.{$builder->getModel()->getTypeColumn()}";
+        return $builder->where($prefixedTypeColumn, static::class);
+    }
+
+    public static function handleSaved(Model $model)
     { }
 
     public function getMorphClass()
@@ -41,14 +65,38 @@ trait SingleTableInheritance
         return self::class;
     }
 
+    public function resolveTypeViaAttributes($attributes = [])
+    {
+        return ($attribute = $this->getTypeColumn())
+            ? array_get($attributes, $attribute, array_get($this->attributes, $attribute))
+            : null;
+    }
+
     public function getTypeColumn()
     {
-        return isset($this->typeColumn) ? $this->typeColumn : config('single-table-inheritance.default_type_column', 'type');
+        return isset($this->typeColumn)
+            ? $this->typeColumn
+            : config('single-table-inheritance.default_type_column', 'type');
+    }
+
+    /**
+     * Get the default foreign key name for the model.
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return Str::snake(class_basename(self::class)) . '_' . $this->getKeyName();
+    }
+
+    public function getSubModelClass($attributes = [])
+    {
+        return $this->resolveTypeViaAttributes($attributes);
     }
 
     public function getTypeAttribute()
     {
-        $type = $this->getModelClass($this->attributes);
+        $type = $this->resolveTypeViaAttributes($this->attributes);
         $type = Str::kebab(class_basename($type));
         return $type ?: null;
     }
@@ -65,39 +113,26 @@ trait SingleTableInheritance
         return $this->table;
     }
 
-    protected function getModelClass($attributes = [])
-    {
-        return array_get((array)$attributes, $this->getTypeColumn());
-    }
-
     /**
      * {@inheritDoc}
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
-        $class = $this->getModelClass($attributes);
+        $attributes = (array)$attributes;
+
+        $class = $this->getSubModelClass($attributes);
 
         $model = class_exists($class) ? new $class : $this;
 
         $model = $model->newInstance([], true);
 
-        $model->setRawAttributes((array)$attributes, true);
+        $model->setRawAttributes($attributes, true);
 
         $model->setConnection($connection ?: $this->getConnectionName());
 
         $model->fireModelEvent('retrieved', false);
 
         return $model;
-    }
-
-    /**
-     * Get the default foreign key name for the model.
-     *
-     * @return string
-     */
-    public function getForeignKey()
-    {
-        return Str::snake(class_basename(self::class)) . '_' . $this->getKeyName();
     }
 
     /**
@@ -111,7 +146,7 @@ trait SingleTableInheritance
 
         $attributes = (array)$attributes;
 
-        $class = array_get($attributes, 'type', array_get($this->attributes, 'type', static::class));
+        $class = $this->getSubModelClass($attributes) ?: static::class;
 
         $model = new $class($attributes);
 
