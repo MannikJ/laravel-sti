@@ -2,7 +2,9 @@
 
 namespace MannikJ\Laravel\SingleTableInheritance;
 
+use MannikJ\Laravel\SingleTableInheritance\Services\SingleTableInheritance;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Schema\Blueprint;
 
 class SingleTableInheritanceServiceProvider extends ServiceProvider
 {
@@ -53,8 +55,13 @@ class SingleTableInheritanceServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'single-table-inheritance');
 
         // Register the main class to use with the facade
-        $this->app->singleton('STI', function () {
+        $this->app->singleton('sti', function () {
             return new SingleTableInheritance;
+        });
+
+        Blueprint::macro('sti', function ($name = null) {
+            $name = $name ?: config('single-table-inheritance.default_type_column');
+            return $this->string($name);
         });
     }
 }

@@ -52,7 +52,7 @@
                 "MannikJ\\Laravel\\SingleTableInheritance\\SingleTableInheritanceServiceProvider"
             ],
             "aliases": {
-                "STI": "MannikJ\\Laravel\\SingleTableInheritance\\SingleTableInheritanceFacade"
+                "STI": "MannikJ\\Laravel\\SingleTableInheritance\\Facades\\STI"
             }
         }
     }

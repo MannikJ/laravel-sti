@@ -1,13 +1,13 @@
 <?php
 
-namespace MannikJ\Laravel\SingleTableInheritance;
+namespace MannikJ\Laravel\SingleTableInheritance\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @see \MannikJ\LaravelSti\Skeleton\SkeletonClass
  */
-class SingleTableInheritanceFacade extends Facade
+class STI extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -16,6 +16,6 @@ class SingleTableInheritanceFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'STI';
+        return 'sti';
     }
 }

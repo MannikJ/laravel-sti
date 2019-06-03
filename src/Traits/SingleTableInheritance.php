@@ -4,7 +4,6 @@ namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 
 trait SingleTableInheritance
 {

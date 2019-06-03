@@ -10,7 +10,7 @@ class CreateTestTables extends Migration
     {
         Schema::create('vehicles', function ($table) {
             $table->increments('id');
-            STI::column($table)->nullable();
+            $table->sti()->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories');
             $table->string('name');
@@ -20,7 +20,7 @@ class CreateTestTables extends Migration
             $table->increments('id');
             $table->string('name')->nullable();
             $table->string('class_name')->nullable();
-            STI::column($table)->nullable();
+            $table->sti()->nullable();
             $table->timestamps();
         });
         Schema::create('supers', function ($table) {

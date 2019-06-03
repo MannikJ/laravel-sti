@@ -26,11 +26,10 @@ abstract class LaravelTest extends TestCase
         ];
     }
 
-
     protected function getPackageAliases($app)
     {
         return [
-            'STI' => 'MannikJ\Laravel\SingleTableInheritance\SingleTableInheritanceFacade'
+            'STI' => 'MannikJ\Laravel\SingleTableInheritance\Facades\STI'
         ];
     }
 }

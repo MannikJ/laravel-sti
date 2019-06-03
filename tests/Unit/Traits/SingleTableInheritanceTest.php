@@ -9,7 +9,8 @@ use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Sub;
 
-class Test extends LaravelTest
+
+class SingleTableInheritanceTest extends LaravelTest
 {
     /** @test */
     public function query_via_root_class_retrieves_all_with_instances_of_subclasses()
