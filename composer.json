@@ -1,6 +1,6 @@
 {
     "name": "mannikj/laravel-sti",
-    "description": "",
+    "description": "A single table inheritance trait for you eloquent models",
     "keywords": [
         "mannikj",
         "laravel",
