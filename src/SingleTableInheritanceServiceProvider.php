@@ -60,7 +60,7 @@ class SingleTableInheritanceServiceProvider extends ServiceProvider
         });
 
         Blueprint::macro('sti', function ($name = null) {
-            $name = $name ?: config('single-table-inheritance.default_type_column');
+            $name = $name ?: config('single-table-inheritance.column_name', 'type');
             return $this->string($name);
         });
     }
