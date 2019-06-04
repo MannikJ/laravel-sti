@@ -8,7 +8,8 @@ use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Car;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Sub;
-
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Super;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Child;
 
 class SingleTableInheritanceTest extends LaravelTest
 {
@@ -80,11 +81,22 @@ class SingleTableInheritanceTest extends LaravelTest
     /** @test */
     public function custom_scope_through_related_model()
     {
-        $category = factory(Category::class)->create(['class_name' => Sub::class]);
-        $category = factory(Category::class)->create(['class_name' => Child::class]);
-        $super = $category->supers()->create(['name' => 'test']);
-        $results = Sub::all();
-        $this->assertCount(1, $results);
-        $this->assertInstanceOf(Sub::class, $results->first());
+        $types = [Sub::class, Child::class];
+
+        foreach ($types as $type) {
+            $category = factory(Category::class)->create(['class_name' => $type]);
+            $this->assertEquals(get_class(new $type()), $type);
+            $this->assertNotNull(Category::where('class_name', Sub::class)->first());
+            $super = $category->supers()->create(['name' => 'test']);
+            $this->assertTrue($super->category->exists());
+        }
+
+        $this->assertCount(count($types) * 1, Super::all());
+
+        foreach ($types as $type) {
+            $results = $type::all();
+            $this->assertCount(1, $results);
+            $this->assertInstanceOf($type, $results->first());
+        }
     }
 }

@@ -21,9 +21,10 @@ class Super extends Model
 
     public static function typeScope(Builder $builder)
     {
-        // $builder->whereHas('category', function ($query) use ($builder) {
-        //     $query->where('class_name', get_class($builder->getModel()));
-        // });
+        $builder->whereHas('category', function ($query) use ($builder) {
+            \Log::debug(get_class($builder->getModel()));
+            $query->where('categories.class_name', static::class);
+        });
     }
 
     public function category()
