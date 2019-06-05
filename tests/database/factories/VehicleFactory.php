@@ -13,9 +13,9 @@ $factory->define(Vehicle::class, function (Faker $faker) {
     ];
 });
 
-$factory->afterCreating(Vehicle::class, function ($vehicle) {
-    return $vehicle = $vehicle->fresh();
-});
+// $factory->afterCreating(Vehicle::class, function ($vehicle) {
+//     return $vehicle = $vehicle->fresh();
+// });
 
 $subclasses = [
     Car::class,

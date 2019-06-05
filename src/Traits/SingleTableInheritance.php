@@ -9,35 +9,49 @@ trait SingleTableInheritance
 {
     public function __construct(array $attributes = [])
     {
-        $this->applyTypeCharacteristics($attributes);
         parent::__construct($attributes);
+        $this->checkType($attributes);
     }
 
-    public function applyTypeCharacteristics($attributes = [])
+    public function checkType($attributes = [])
     {
-        $typeColumn = $this->getTypeColumn();
-        $subType = $this->resolveSubTypeViaClass();
-        if (!$this->resolveTypeViaAttributes($attributes) && $this->resolveSubTypeViaClass()) {
-            $this->attributes[$typeColumn] = $subType;
+        if ($this->resolveTypeViaAttributes($attributes)) {
+            return;
         }
+
+        if ($type = $this->resolveTypeViaClass()) {
+            $this->applyTypeCharacteristics($type);
+        }
+    }
+
+    public function resolveTypeViaAttributes($attributes = [])
+    {
+        return ($attribute = $this->getTypeColumn())
+            ? array_get($attributes, $attribute, array_get($this->attributes, $attribute))
+            : null;
+    }
+
+    public static function resolveTypeViaClass()
+    {
+        return static::isSubclass() ? static::class : null;
+    }
+
+    public function applyTypeCharacteristics($type)
+    {
+        $this->attributes[$this->getTypeColumn()] = $type;
     }
 
     protected static function boot()
     {
-        if (static::resolveSubTypeViaClass()) {
+        if (static::isSubclass()) {
             static::addGlobalScope('type', function (Builder $builder) {
                 static::typeScope($builder);
             });
         }
+        parent::boot();
         static::saved(function ($model) {
             $model->handleSaved($model);
         });
-        parent::boot();
-    }
-
-    public static function resolveSubTypeViaClass()
-    {
-        return static::isSubclass() ? static::class : null;
     }
 
     public static function isSubclass()
@@ -62,13 +76,6 @@ trait SingleTableInheritance
     public function getMorphClass()
     {
         return self::class;
-    }
-
-    public function resolveTypeViaAttributes($attributes = [])
-    {
-        return ($attribute = $this->getTypeColumn())
-            ? array_get($attributes, $attribute, array_get($this->attributes, $attribute))
-            : null;
     }
 
     public function getTypeColumn()

@@ -76,7 +76,9 @@ class SingleTableInheritanceTest extends LaravelTest
         $super = $category->supers()->create(['name' => 'test']);
         $this->assertTrue($super->category()->get()->contains($category));
         $this->assertInstanceOf(Sub::class, $category->supers()->first());
+        $this->assertTrue($category->is(Sub::create()->category));
     }
+
 
     /** @test */
     public function custom_scope_through_related_model()

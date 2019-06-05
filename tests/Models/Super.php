@@ -19,6 +19,11 @@ class Super extends Model
         };
     }
 
+    public function applyTypeCharacteristics($type)
+    {
+        $this->category_id = Category::where('class_name', $type)->first()->id;
+    }
+
     public static function typeScope(Builder $builder)
     {
         $builder->whereHas('category', function ($query) use ($builder) {
@@ -29,6 +34,7 @@ class Super extends Model
 
     public function category()
     {
+        \Log::debug('category');
         return $this->belongsTo(Category::class, 'category_id')->withDefault([
             'class_name' => static::class
         ]);
