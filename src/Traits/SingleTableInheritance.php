@@ -13,6 +13,18 @@ trait SingleTableInheritance
         $this->checkType($attributes);
     }
 
+    public static function bootSingleTableInheritance()
+    {
+        if (static::isSubclass()) {
+            static::addGlobalScope('type', function (Builder $builder) {
+                static::typeScope($builder);
+            });
+        }
+        static::saved(function ($model) {
+            $model->handleSaved($model);
+        });
+    }
+
     public function checkType($attributes = [])
     {
         if ($this->resolveTypeViaAttributes($attributes)) {
@@ -39,19 +51,6 @@ trait SingleTableInheritance
     public function applyTypeCharacteristics($type)
     {
         $this->attributes[$this->getTypeColumn()] = $type;
-    }
-
-    protected static function boot()
-    {
-        if (static::isSubclass()) {
-            static::addGlobalScope('type', function (Builder $builder) {
-                static::typeScope($builder);
-            });
-        }
-        parent::boot();
-        static::saved(function ($model) {
-            $model->handleSaved($model);
-        });
     }
 
     public static function isSubclass()
