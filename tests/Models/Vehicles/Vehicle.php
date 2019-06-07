@@ -1,20 +1,26 @@
 <?php
 
-namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models;
+namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles;
 
 use Illuminate\Database\Eloquent\Model;
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 
 class Vehicle extends Model
 {
     use SingleTableInheritance;
+
+    protected static $stiSubclasses = [
+        Plane::class,
+        Car::class,
+    ];
 
     protected $fillable = ['name'];
 
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id')->withDefault([
-            'class_name' => static::class
+            'config_class' => static::class
         ]);
     }
 }

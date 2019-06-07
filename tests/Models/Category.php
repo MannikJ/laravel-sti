@@ -3,6 +3,8 @@
 namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals\Animal;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Vehicle;
 
 class Category extends Model
 {
@@ -13,8 +15,8 @@ class Category extends Model
         return $this->hasMany(Vehicle::class);
     }
 
-    public function supers()
+    public function animals()
     {
-        return $this->hasMany(Super::class);
+        return $this->hasMany(Animal::class);
     }
 }

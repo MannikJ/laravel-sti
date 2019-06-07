@@ -5,8 +5,11 @@ namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
+
 trait SingleTableInheritance
 {
+    protected static $stiTypeMap = [];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -15,6 +18,7 @@ trait SingleTableInheritance
 
     public static function bootSingleTableInheritance()
     {
+        static::getStiTypeMap();
         if (static::isSubclass()) {
             static::addGlobalScope('type', function (Builder $builder) {
                 static::typeScope($builder);
@@ -36,6 +40,41 @@ trait SingleTableInheritance
         }
     }
 
+    public static function getStiTypeMap(): array
+    {
+        if (array_key_exists(static::class, self::$stiTypeMap)) {
+            return self::$stiTypeMap[static::class];
+        }
+        $typeMap = [];
+        // Check if the calledClass is a leaf of the hierarchy. stiSubclasses will be inherited from the parent class
+        // so its important we check for the tableType first otherwise we'd infinitely recurse.
+        if ($type = static::resolveTypeViaClass()) {
+            $typeMap[$type] = static::class;
+        }
+        $subclasses = static::getStiSubclasses();
+        // prevent infinite recursion if the singleTableSubclass is inherited
+        if (!in_array(static::class, $subclasses)) {
+            foreach ($subclasses as $subclass) {
+                $typeMap = $typeMap + $subclass::getStiTypeMap();
+            }
+        }
+
+        self::$stiTypeMap[static::class] = $typeMap;
+        return $typeMap;
+    }
+
+    public static function getStiSubclasses(): array
+    {
+        return property_exists(static::class, 'stiSubclasses')
+            ? static::$stiSubclasses
+            : [];
+    }
+
+    public static function getAllStiSubclasses()
+    {
+        return array_keys(static::getStiTypeMap());
+    }
+
     public function resolveTypeViaAttributes($attributes = [])
     {
         return ($attribute = $this->getTypeColumn())
@@ -48,6 +87,10 @@ trait SingleTableInheritance
         return static::isSubclass() ? static::class : null;
     }
 
+    public static function getTypesForScope() {
+        return [static::class] +static::getAllStiSubclasses();
+    }
+
     public function applyTypeCharacteristics($type)
     {
         $this->attributes[$this->getTypeColumn()] = $type;
@@ -55,7 +98,7 @@ trait SingleTableInheritance
 
     public static function isSubclass()
     {
-        return is_subclass_of(get_called_class(), static::getBaseModelClass());
+        return is_subclass_of(static::class, static::getBaseModelClass());
     }
 
     public static function getBaseModelClass()
@@ -65,8 +108,7 @@ trait SingleTableInheritance
 
     public static function typeScope(Builder $builder)
     {
-        $prefixedTypeColumn = "{$builder->getModel()->getTable()}.{$builder->getModel()->getTypeColumn()}";
-        return $builder->where($prefixedTypeColumn, static::class);
+        return $builder->whereIn($builder->getModel()->getTypeColumn(true), static::getTypesForScope());
     }
 
     public function handleSaved()
@@ -77,11 +119,15 @@ trait SingleTableInheritance
         return self::class;
     }
 
-    public function getTypeColumn()
+    public function getTypeColumn($qualified = false)
     {
-        return isset($this->typeColumn)
+        $typeColumn = isset($this->typeColumn)
             ? $this->typeColumn
             : config('single-table-inheritance.default_type_column', 'type');
+
+        return $qualified
+            ? "{$this->getTable()}.{$typeColumn}"
+            : $typeColumn;
     }
 
     /**
@@ -94,7 +140,7 @@ trait SingleTableInheritance
         return Str::snake(class_basename(self::class)) . '_' . $this->getKeyName();
     }
 
-    public function getSubModelClass($attributes = [])
+    public function getModelClassViaAttributes($attributes = [])
     {
         return $this->resolveTypeViaAttributes($attributes);
     }
@@ -125,7 +171,7 @@ trait SingleTableInheritance
     {
         $attributes = (array)$attributes;
 
-        $class = $this->getSubModelClass($attributes);
+        $class = $this->getModelClassViaAttributes($attributes);
 
         $model = class_exists($class) ? new $class : $this;
 
@@ -151,7 +197,7 @@ trait SingleTableInheritance
 
         $attributes = (array)$attributes;
 
-        $class = $this->getSubModelClass($attributes) ?: static::class;
+        $class = $this->getModelClassViaAttributes($attributes) ?: static::class;
 
         $model = new $class($attributes);
 

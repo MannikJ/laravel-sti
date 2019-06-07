@@ -19,11 +19,11 @@ class CreateTestTables extends Migration
         Schema::create('categories', function ($table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->string('class_name')->nullable();
+            $table->string('config_class')->nullable();
             $table->sti()->nullable();
             $table->timestamps();
         });
-        Schema::create('supers', function ($table) {
+        Schema::create('animals', function ($table) {
             $table->increments('id');
             $table->string('name')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();

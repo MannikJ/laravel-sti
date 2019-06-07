@@ -3,13 +3,14 @@
 namespace MannikJ\Laravel\SingleTableInheritance\Tests\Unit\Traits;
 
 use MannikJ\Laravel\SingleTableInheritance\Tests\LaravelTest;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicle;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Car;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Plane;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Vehicle;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Car;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Plane;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\SUV;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Sub;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Super;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Child;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals\Monkey;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals\Animal;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals\Tiger;
 
 class SingleTableInheritanceTest extends LaravelTest
 {
@@ -72,33 +73,49 @@ class SingleTableInheritanceTest extends LaravelTest
     /** @test */
     public function can_resolve_type_from_related_model()
     {
-        $category = factory(Category::class)->create(['class_name' => Sub::class]);
-        $super = $category->supers()->create(['name' => 'test']);
+        $category = factory(Category::class)->create(['config_class' => Tiger::class]);
+        $super = $category->animals()->create(['name' => 'test']);
         $this->assertTrue($super->category()->get()->contains($category));
-        $this->assertInstanceOf(Sub::class, $category->supers()->first());
-        $this->assertTrue($category->is(Sub::create()->category));
+        $this->assertInstanceOf(Tiger::class, $category->animals()->first());
+        $this->assertTrue($category->is(Tiger::create()->category));
     }
 
 
     /** @test */
     public function custom_scope_through_related_model()
     {
-        $types = [Sub::class, Child::class];
+        $types = [Tiger::class, Monkey::class];
 
         foreach ($types as $type) {
-            $category = factory(Category::class)->create(['class_name' => $type]);
+            $category = factory(Category::class)->create(['config_class' => $type]);
             $this->assertEquals(get_class(new $type()), $type);
-            $this->assertNotNull(Category::where('class_name', Sub::class)->first());
-            $super = $category->supers()->create(['name' => 'test']);
+            $this->assertNotNull(Category::where('config_class', Tiger::class)->first());
+            $super = $category->animals()->create(['name' => 'test']);
             $this->assertTrue($super->category->exists());
         }
 
-        $this->assertCount(count($types) * 1, Super::all());
+        $this->assertCount(count($types) * 1, Animal::all());
 
         foreach ($types as $type) {
             $results = $type::all();
             $this->assertCount(1, $results);
             $this->assertInstanceOf($type, $results->first());
         }
+    }
+
+    /** @test */
+    public function get_sti_type_map()
+    {
+        $vehicle = factory(Vehicle::class)->create();
+        $this->assertArraySubset([Plane::class, Car::class, SUV::class], array_keys($vehicle->getStiTypeMap()));
+    }
+
+    /** @test */
+    public function queries_are_scoped_correctly()
+    {
+        factory(Vehicle::class, 10)->create();
+        factory(Car::class, 10)->create();
+        $this->assertCount(20, Vehicle::all());
+        $this->assertCount(10, Car::all());
     }
 }

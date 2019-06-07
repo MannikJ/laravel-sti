@@ -5,10 +5,12 @@ namespace MannikJ\Laravel\SingleTableInheritance\Tests;
 use Orchestra\Testbench\TestCase;
 use MannikJ\Laravel\SingleTableInheritance\SingleTableInheritanceServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 
 abstract class LaravelTest extends TestCase
 {
     use RefreshDatabase;
+    use ArraySubsetAsserts;
     /**
      * Setup the test environment.
      */

@@ -1,12 +1,13 @@
 <?php
 
-namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models;
+namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals;
 
 use Illuminate\Database\Eloquent\Model;
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
 use Illuminate\Database\Eloquent\Builder;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 
-class Super extends Model
+class Animal extends Model
 {
     use SingleTableInheritance;
 
@@ -15,20 +16,20 @@ class Super extends Model
     public function resolveTypeViaAttributes($attributes = [])
     {
         if ($category = Category::find(array_get($attributes, 'category_id'))) {
-            return $category->class_name;
+            return $category->config_class;
         };
     }
 
     public function applyTypeCharacteristics($type)
     {
-        $this->category_id = Category::where('class_name', $type)->first()->id;
+        $this->category_id = Category::where('config_class', $type)->first()->id;
     }
 
     public static function typeScope(Builder $builder)
     {
         $builder->whereHas('category', function ($query) use ($builder) {
             \Log::debug(get_class($builder->getModel()));
-            $query->where('categories.class_name', static::class);
+            $query->where('categories.config_class', static::class);
         });
     }
 
@@ -36,7 +37,7 @@ class Super extends Model
     {
         \Log::debug('category');
         return $this->belongsTo(Category::class, 'category_id')->withDefault([
-            'class_name' => static::class
+            'config_class' => static::class
         ]);
     }
 }
