@@ -25,7 +25,7 @@ class Animal extends Model
         $this->category_id = Category::where('config_class', $type)->first()->id;
     }
 
-    public function scopeType(Builder $builder)
+    public function scopeSti(Builder $builder)
     {
         $builder->whereHas('category', function ($query) use ($builder) {
             \Log::debug(get_class($builder->getModel()));
