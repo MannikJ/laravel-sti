@@ -21,7 +21,7 @@ trait SingleTableInheritance
         static::getStiTypeMap();
         if (static::isSubclass()) {
             static::addGlobalScope('type', function (Builder $builder) {
-                static::typeScope($builder);
+                $builder->type();
             });
         }
         static::saved(function ($model) {
@@ -87,8 +87,9 @@ trait SingleTableInheritance
         return static::isSubclass() ? static::class : null;
     }
 
-    public static function getTypesForScope() {
-        return [static::class] +static::getAllStiSubclasses();
+    public static function getTypesForScope()
+    {
+        return [static::class] + static::getAllStiSubclasses();
     }
 
     public function applyTypeCharacteristics($type)
@@ -106,7 +107,7 @@ trait SingleTableInheritance
         return self::class;
     }
 
-    public static function typeScope(Builder $builder)
+    public function scopeType(Builder $builder)
     {
         return $builder->whereIn($builder->getModel()->getTypeColumn(true), static::getTypesForScope());
     }
