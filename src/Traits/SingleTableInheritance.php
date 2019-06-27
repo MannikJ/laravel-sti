@@ -24,9 +24,6 @@ trait SingleTableInheritance
                 $builder->sti();
             });
         }
-        static::saved(function ($model) {
-            $model->handleSaved($model);
-        });
     }
 
     public function checkType($attributes = [])
