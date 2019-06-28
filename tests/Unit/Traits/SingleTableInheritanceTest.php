@@ -111,6 +111,14 @@ class SingleTableInheritanceTest extends LaravelTest
     }
 
     /** @test */
+    public function can_have_nested_types() {
+        $vehicle = factory(Car::class)->create();
+        $suv = factory(SUV::class)->create();
+        $this->assertEquals(2, Vehicle::count());
+        $this->assertEquals(1, SUV::count());
+    }
+
+    /** @test */
     public function queries_are_scoped_correctly()
     {
         factory(Vehicle::class, 10)->create();
