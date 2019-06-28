@@ -13,7 +13,7 @@ trait SingleTableInheritance
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->checkType($attributes);
+        $this->ensureTypeCharacteristics();
     }
 
     public static function bootSingleTableInheritance()
@@ -26,7 +26,7 @@ trait SingleTableInheritance
         }
     }
 
-    public function checkType($attributes = [])
+    public function ensureTypeCharacteristics($attributes = [])
     {
         if ($this->resolveTypeViaAttributes($attributes)) {
             return;
@@ -72,10 +72,11 @@ trait SingleTableInheritance
         return array_keys(static::getStiTypeMap());
     }
 
-    public function resolveTypeViaAttributes($attributes = [])
+    public function resolveTypeViaAttributes($attributes = null)
     {
+        $attributes = $attributes ?: $this->attributes;
         return ($attribute = $this->getTypeColumn())
-            ? array_get($attributes, $attribute, array_get($this->attributes, $attribute))
+            ? array_get($attributes, $attribute)
             : null;
     }
 
@@ -89,6 +90,9 @@ trait SingleTableInheritance
         return [static::class] + static::getAllStiSubclasses();
     }
 
+    /**
+     * @param string $type
+     */
     public function applyTypeCharacteristics($type)
     {
         $this->attributes[$this->getTypeColumn()] = $type;
