@@ -67,7 +67,7 @@ trait SingleTableInheritance
             : [];
     }
 
-    public static function getAllStiSubclasses()
+    public static function getAllStiSubTypes()
     {
         return array_keys(static::getStiTypeMap());
     }
@@ -87,7 +87,7 @@ trait SingleTableInheritance
 
     public static function getTypesForScope()
     {
-        return [static::class] + static::getAllStiSubclasses();
+        return [static::class] + static::getAllStiSubTypes();
     }
 
     /**

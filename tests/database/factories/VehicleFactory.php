@@ -10,7 +10,7 @@ $factory->define(Vehicle::class, function (Faker $faker) {
     ];
 });
 
-$subclasses = Vehicle::getAllStiSubclasses();
+$subclasses = Vehicle::getAllStiSubTypes();
 
 $factory->state(Vehicle::class, 'random-type', function ($faker) use ($subclasses) {
     return [
