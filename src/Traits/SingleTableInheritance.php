@@ -87,7 +87,7 @@ trait SingleTableInheritance
 
     public static function getTypesForScope()
     {
-        return [static::class] + static::getAllStiSubTypes();
+        return static::getAllStiSubTypes();
     }
 
     /**
