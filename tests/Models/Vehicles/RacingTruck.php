@@ -2,8 +2,7 @@
 
 namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles;
 
-class Car extends Vehicle
+class RacingTruck extends SUV
 {
-    protected static $stiSubClasses = [SUV::class];
 
 }

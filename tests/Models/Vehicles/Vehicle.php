@@ -10,7 +10,7 @@ class Vehicle extends Model
 {
     use SingleTableInheritance;
 
-    protected static $stiSubclasses = [
+    protected static $stiSubClasses = [
         Plane::class,
         Car::class,
     ];

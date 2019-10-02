@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 
 trait SingleTableInheritance
 {
-    protected static $stiTypeMap = [];
 
     public function __construct(array $attributes = [])
     {
@@ -18,8 +17,7 @@ trait SingleTableInheritance
 
     public static function bootSingleTableInheritance()
     {
-        static::getStiTypeMap();
-        if (static::isSubclass()) {
+        if (static::isSubClass()) {
             static::addGlobalScope('type', function (Builder $builder) {
                 $builder->sti();
             });
@@ -37,39 +35,46 @@ trait SingleTableInheritance
         }
     }
 
-    public static function getStiTypeMap(): array
+    public static function getStiSubClasses()
     {
-        if (array_key_exists(static::class, self::$stiTypeMap)) {
-            return self::$stiTypeMap[static::class];
+        $map = [];
+        foreach (static::getDirectStiSubClasses() as $subClass) {
+            $map += $subClass::getStiSubClasses();
         }
-        $typeMap = [];
-        // Check if the calledClass is a leaf of the hierarchy. stiSubclasses will be inherited from the parent class
-        // so its important we check for the tableType first otherwise we'd infinitely recurse.
-        if ($type = static::resolveTypeViaClass()) {
-            $typeMap[$type] = static::class;
-        }
-        $subclasses = static::getStiSubclasses();
-        // prevent infinite recursion if the singleTableSubclass is inherited
-        if (!in_array(static::class, $subclasses)) {
-            foreach ($subclasses as $subclass) {
-                $typeMap = $typeMap + $subclass::getStiTypeMap();
+        return $map;
+    }
+
+    public static function getStiSubTypes()
+    {
+        return array_keys(static::getStiMap());
+    }
+
+    public static function getStiMap(): array
+    {
+        return collect(static::getStiSubClasses())
+            ->mapWithKeys(function ($subClass) {
+                return [$subClass::resolveTypeViaClass() => $subClass];
+            })->toArray();
+    }
+
+    public static function getDirectStiSubClasses(): array
+    {
+        try {
+            if (
+                !static::$stiSubClasses
+                && parent::$stiSubClasses === static::$stiSubClasses
+            ) {
+                return [];
             }
+            return static::$stiSubClasses;
+        } catch (\Throwable $th) {
+            return [];
         }
-
-        self::$stiTypeMap[static::class] = $typeMap;
-        return $typeMap;
     }
 
-    public static function getStiSubclasses(): array
+    public static function getTypesForScope()
     {
-        return property_exists(static::class, 'stiSubclasses')
-            ? static::$stiSubclasses
-            : [];
-    }
-
-    public static function getAllStiSubTypes()
-    {
-        return array_keys(static::getStiTypeMap());
+        return [static::resolveTypeViaClass()] + static::getStiSubTypes();
     }
 
     public function resolveTypeViaAttributes($attributes = null)
@@ -82,12 +87,7 @@ trait SingleTableInheritance
 
     public static function resolveTypeViaClass()
     {
-        return static::isSubclass() ? static::class : null;
-    }
-
-    public static function getTypesForScope()
-    {
-        return static::getAllStiSubTypes();
+        return static::isSubClass() ? static::class : null;
     }
 
     /**
@@ -98,7 +98,7 @@ trait SingleTableInheritance
         $this->attributes[$this->getTypeColumn()] = $type;
     }
 
-    public static function isSubclass()
+    public static function isSubClass()
     {
         return is_subclass_of(static::class, static::getBaseModelClass());
     }
@@ -171,7 +171,7 @@ trait SingleTableInheritance
      */
     public function newFromBuilder($attributes = [], $connection = null)
     {
-        $attributes = (array)$attributes;
+        $attributes = (array) $attributes;
 
         $class = $this->getModelClassViaAttributes($attributes);
 
@@ -197,7 +197,7 @@ trait SingleTableInheritance
         // instances of this current model. It is particularly useful during the
         // hydration of new objects via the Eloquent query builder instances.
 
-        $attributes = (array)$attributes;
+        $attributes = (array) $attributes;
 
         $class = $this->getModelClassViaAttributes($attributes) ?: static::class;
 

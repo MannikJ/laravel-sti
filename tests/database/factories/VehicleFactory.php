@@ -3,6 +3,7 @@
 use Faker\Generator as Faker;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Vehicle;
 use Illuminate\Support\Str;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\SUV;
 
 $factory->define(Vehicle::class, function (Faker $faker) {
     return [
@@ -10,7 +11,7 @@ $factory->define(Vehicle::class, function (Faker $faker) {
     ];
 });
 
-$subclasses = Vehicle::getAllStiSubTypes();
+$subclasses = Vehicle::getStiSubClasses();
 
 $factory->state(Vehicle::class, 'random-type', function ($faker) use ($subclasses) {
     return [
@@ -25,7 +26,7 @@ foreach ($subclasses as $subclass) {
             'name' => $faker->name(),
         ];
     };
-
+dd($subclasses);
     $factory->state(Vehicle::class, $subclass, $function);
     $factory->state(Vehicle::class, Str::kebab(class_basename($subclass)), $function);
     $factory->define($subclass, $function);
