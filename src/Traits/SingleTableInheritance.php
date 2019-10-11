@@ -4,8 +4,6 @@ namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Car;
-use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Plane;
 
 trait SingleTableInheritance
 {
