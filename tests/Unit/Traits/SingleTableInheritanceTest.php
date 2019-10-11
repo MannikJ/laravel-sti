@@ -104,14 +104,38 @@ class SingleTableInheritanceTest extends LaravelTest
     }
 
     /** @test */
-    public function get_sti_type_map()
+    public function get_direct_sti_sub_classes()
     {
         $vehicle = factory(Vehicle::class)->create();
-        $this->assertArraySubset([Plane::class, Car::class, SUV::class], array_keys($vehicle->getStiTypeMap()));
+        $this->assertArraySubset(
+            [Plane::class, Car::class],
+            $vehicle->getDirectStiSubClasses()
+        );
     }
 
     /** @test */
-    public function can_have_nested_types() {
+    public function get_sti_sub_classes()
+    {
+        $vehicle = factory(Vehicle::class)->create();
+        $this->assertArraySubset(
+            [Plane::class, Car::class],
+            $vehicle->getStiSubClasses()
+        );
+    }
+
+    /** @test */
+    public function get_sti_map()
+    {
+        $vehicle = factory(Vehicle::class)->create();
+        $this->assertArraySubset(
+            [Plane::class, Car::class, SUV::class],
+            array_keys($vehicle->getStiMap())
+        );
+    }
+
+    /** @test */
+    public function can_have_nested_types()
+    {
         $vehicle = factory(Car::class)->create();
 
         $suv = factory(SUV::class)->create();

@@ -26,7 +26,7 @@ foreach ($subclasses as $subclass) {
             'name' => $faker->name(),
         ];
     };
-dd($subclasses);
+
     $factory->state(Vehicle::class, $subclass, $function);
     $factory->state(Vehicle::class, Str::kebab(class_basename($subclass)), $function);
     $factory->define($subclass, $function);

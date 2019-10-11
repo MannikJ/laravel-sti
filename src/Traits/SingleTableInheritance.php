@@ -4,7 +4,8 @@ namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Car;
+use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Vehicles\Plane;
 
 trait SingleTableInheritance
 {
@@ -35,20 +36,6 @@ trait SingleTableInheritance
         }
     }
 
-    public static function getStiSubClasses()
-    {
-        $map = [];
-        foreach (static::getDirectStiSubClasses() as $subClass) {
-            $map += $subClass::getStiSubClasses();
-        }
-        return $map;
-    }
-
-    public static function getStiSubTypes()
-    {
-        return array_keys(static::getStiMap());
-    }
-
     public static function getStiMap(): array
     {
         return collect(static::getStiSubClasses())
@@ -57,19 +44,39 @@ trait SingleTableInheritance
             })->toArray();
     }
 
+    public static function getStiSubTypes()
+    {
+        return array_keys(static::getStiMap());
+    }
+
+    /**
+     * Recursively traverse all sti sub classes
+     */
+    public static function getStiSubClasses()
+    {
+        $classes = collect(static::getDirectStiSubClasses());
+        foreach (static::getDirectStiSubClasses() as $subClass) {
+            $classes = $classes->merge($subClass::getStiSubClasses());
+        }
+        return $classes->unique()->toArray();
+    }
+
     public static function getDirectStiSubClasses(): array
     {
-        try {
-            if (
-                !static::$stiSubClasses
-                && parent::$stiSubClasses === static::$stiSubClasses
-            ) {
-                return [];
-            }
-            return static::$stiSubClasses;
-        } catch (\Throwable $th) {
+        if (!property_exists(static::class, 'stiSubClasses')) {
             return [];
         }
+
+        $parent = get_parent_class(static::class);
+
+        if (
+            isset($parent::$stiSubClasses)
+            && $parent::$stiSubClasses === static::$stiSubClasses
+        ) {
+            return [];
+        }
+
+        return static::$stiSubClasses;
     }
 
     public static function getTypesForScope()
