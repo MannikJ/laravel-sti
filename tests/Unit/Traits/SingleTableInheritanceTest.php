@@ -151,4 +151,14 @@ class SingleTableInheritanceTest extends LaravelTest
         $this->assertCount(20, Vehicle::all());
         $this->assertCount(10, Car::all());
     }
+
+     /** @test */
+    public function _scope_sti_with_types_param()
+    {
+        factory(Vehicle::class, 10)->create();
+        factory(Car::class, 10)->create();
+        $this->assertCount(20, Vehicle::all());
+        $this->assertEquals(10, Vehicle::sti([Car::class])->count());
+        $this->assertCount(10, Car::all());
+    }
 }
