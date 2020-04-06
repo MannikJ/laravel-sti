@@ -5,6 +5,7 @@ namespace MannikJ\Laravel\SingleTableInheritance\Tests\Models\Animals;
 use Illuminate\Database\Eloquent\Model;
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use MannikJ\Laravel\SingleTableInheritance\Tests\Models\Category;
 
 class Animal extends Model
@@ -15,7 +16,7 @@ class Animal extends Model
 
     public function resolveTypeViaAttributes($attributes = [])
     {
-        if ($category = Category::find(array_get($attributes, 'category_id'))) {
+        if ($category = Category::find(Arr::get($attributes, 'category_id'))) {
             return $category->config_class;
         };
     }

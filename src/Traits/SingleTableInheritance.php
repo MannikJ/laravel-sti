@@ -3,6 +3,7 @@
 namespace MannikJ\Laravel\SingleTableInheritance\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 trait SingleTableInheritance
@@ -86,7 +87,7 @@ trait SingleTableInheritance
     {
         $attributes = $attributes ?: $this->attributes;
         return ($attribute = $this->getTypeColumn())
-            ? array_get($attributes, $attribute)
+            ? Arr::get($attributes, $attribute)
             : null;
     }
 
