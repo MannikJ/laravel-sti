@@ -22,11 +22,11 @@
         }
     ],
     "require": {
-        "php": "^7.2"
+        "php": "^7.2.5"
     },
     "require-dev": {
         "dms/phpunit-arraysubset-asserts": "^0.1.0",
-        "orchestra/testbench": "4.0.*",
+        "orchestra/testbench": "^5.0",
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {
