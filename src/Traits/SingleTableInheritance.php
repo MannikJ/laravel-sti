@@ -80,7 +80,7 @@ trait SingleTableInheritance
 
     public static function getTypesForScope()
     {
-        return [static::resolveTypeViaClass()] + static::getStiSubTypes();
+        return array_merge([static::resolveTypeViaClass()], static::getStiSubTypes());
     }
 
     public function resolveTypeViaAttributes($attributes = null)
