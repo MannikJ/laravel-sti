@@ -4,16 +4,17 @@
     "service": "workspace",
     "workspaceFolder": "/var/www/laravel-sti",
     "extensions": [
-      "dotjoshjohnson.xml",
-      "ryu1kn.partial-diff",
-      "artdiniz.quitcontrol-vscode",
-      "emallin.phpunit",
-      "eamodio.gitlens",
-      "onecentlin.laravel-extension-pack",
-      "sdras.vue-vscode-extensionpack",
-      "fknop.vscode-npm",
-      "apility.beautify-blade"
-  ],
+        "dotjoshjohnson.xml",
+        "ryu1kn.partial-diff",
+        "artdiniz.quitcontrol-vscode",
+        "emallin.phpunit",
+        "eamodio.gitlens",
+        "onecentlin.laravel-extension-pack",
+        "onecentlin.php-productive-pack",
+        "sdras.vue-vscode-extensionpack",
+        "fknop.vscode-npm",
+        "apility.beautify-blade"
+      ],
     "remoteUser": "laradock",
-    "shutdownAction": "none",
+    "shutdownAction": "none"
   }
