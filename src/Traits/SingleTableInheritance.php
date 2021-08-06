@@ -8,15 +8,9 @@ use Illuminate\Support\Str;
 
 trait SingleTableInheritance
 {
-
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->ensureTypeCharacteristics();
-    }
-
     public static function bootSingleTableInheritance()
     {
+
         if (static::isSubClass()) {
             static::addGlobalScope('sti', function (Builder $builder) {
                 return $builder->sti();
@@ -24,7 +18,7 @@ trait SingleTableInheritance
         }
     }
 
-    public function ensureTypeCharacteristics($attributes = [])
+    public function initializeSingleTableInheritance($attributes = [])
     {
         if ($this->resolveTypeViaAttributes($attributes)) {
             return;
@@ -129,7 +123,8 @@ trait SingleTableInheritance
     }
 
     public function handleSaved()
-    { }
+    {
+    }
 
     public function getMorphClass()
     {
