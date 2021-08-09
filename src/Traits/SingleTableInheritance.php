@@ -10,7 +10,6 @@ trait SingleTableInheritance
 {
     public static function bootSingleTableInheritance()
     {
-
         if (static::isSubClass()) {
             static::addGlobalScope('sti', function (Builder $builder) {
                 return $builder->sti();
@@ -18,8 +17,10 @@ trait SingleTableInheritance
         }
     }
 
-    public function initializeSingleTableInheritance($attributes = [])
+    public function fill(array $attributes)
     {
+        parent::fill($attributes);
+
         if ($this->resolveTypeViaAttributes($attributes)) {
             return;
         }
@@ -37,7 +38,7 @@ trait SingleTableInheritance
             })->toArray();
     }
 
-    public static function getStiSubTypes()
+    public static function getStiSubTypes(): array
     {
         return array_keys(static::getStiMap());
     }
@@ -45,7 +46,7 @@ trait SingleTableInheritance
     /**
      * Recursively traverse all sti sub classes
      */
-    public static function getStiSubClasses()
+    public static function getStiSubClasses(): array
     {
         $classes = collect(static::getDirectStiSubClasses());
         foreach (static::getDirectStiSubClasses() as $subClass) {
@@ -72,12 +73,12 @@ trait SingleTableInheritance
         return static::$stiSubClasses;
     }
 
-    public static function getTypesForScope()
+    public static function getTypesForScope(): array
     {
         return array_merge([static::resolveTypeViaClass()], static::getStiSubTypes());
     }
 
-    public function resolveTypeViaAttributes($attributes = null)
+    public function resolveTypeViaAttributes($attributes = null): ?string
     {
         $attributes = $attributes ?: $this->attributes;
         return ($attribute = $this->getTypeColumn())
@@ -85,7 +86,7 @@ trait SingleTableInheritance
             : null;
     }
 
-    public static function resolveTypeViaClass()
+    public static function resolveTypeViaClass(): ?string
     {
         return static::isSubClass() ? static::class : null;
     }
@@ -98,12 +99,12 @@ trait SingleTableInheritance
         $this->attributes[$this->getTypeColumn()] = $type;
     }
 
-    public static function isSubClass()
+    public static function isSubClass(): bool
     {
         return is_subclass_of(static::class, static::getBaseModelClass());
     }
 
-    public static function getBaseModelClass()
+    public static function getBaseModelClass(): string
     {
         return self::class;
     }
@@ -126,12 +127,12 @@ trait SingleTableInheritance
     {
     }
 
-    public function getMorphClass()
+    public function getMorphClass(): string
     {
         return self::class;
     }
 
-    public function getTypeColumn($qualified = false)
+    public function getTypeColumn($qualified = false): string
     {
         $typeColumn = isset($this->typeColumn)
             ? $this->typeColumn
@@ -147,24 +148,24 @@ trait SingleTableInheritance
      *
      * @return string
      */
-    public function getForeignKey()
+    public function getForeignKey(): string
     {
         return Str::snake(class_basename(self::class)) . '_' . $this->getKeyName();
     }
 
-    public function getModelClassViaAttributes($attributes = [])
+    public function getModelClassViaAttributes($attributes = []): ?string
     {
         return $this->resolveTypeViaAttributes($attributes);
     }
 
-    public function getTypeAttribute()
+    public function getTypeAttribute(): ?string
     {
         $type = $this->resolveTypeViaAttributes($this->attributes);
         $type = Str::kebab(class_basename($type));
         return $type ?: null;
     }
 
-    public function getTable()
+    public function getTable(): string
     {
         if (!isset($this->table)) {
             return str_replace(
