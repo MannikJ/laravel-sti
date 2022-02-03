@@ -36,6 +36,7 @@ class SingleTableInheritanceTest extends LaravelTest
     {
         $count = 5;
         $types = [Car::class, Plane::class];
+
         foreach ($types as $type) {
             factory(Vehicle::class, $count)->states($type)->create();
         }
@@ -139,6 +140,7 @@ class SingleTableInheritanceTest extends LaravelTest
         $vehicle = factory(Car::class)->create();
 
         $suv = factory(SUV::class)->create();
+        $this->assertEquals("vehicles", $suv->getTable());
         $this->assertEquals(2, Vehicle::count());
         $this->assertEquals(1, SUV::count());
     }

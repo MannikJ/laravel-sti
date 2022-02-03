@@ -17,19 +17,6 @@ trait SingleTableInheritance
         }
     }
 
-    public function fill(array $attributes)
-    {
-        parent::fill($attributes);
-
-        if ($this->resolveTypeViaAttributes($attributes)) {
-            return;
-        }
-
-        if ($type = $this->resolveTypeViaClass()) {
-            $this->applyTypeCharacteristics($type);
-        }
-    }
-
     public static function getStiMap(): array
     {
         return collect(static::getStiSubClasses())
@@ -91,6 +78,25 @@ trait SingleTableInheritance
         return static::isSubClass() ? static::class : null;
     }
 
+    public function isTypeDirty(): bool
+    {
+        return $this::class != $this->resolveModelClassViaAttributes();
+    }
+
+    public function resolveType(?array $attributes = null): ?string
+    {
+        return $this->resolveTypeViaAttributes($attributes) ?? $this->resolveTypeViaClass();
+    }
+
+    public function fill(array $attributes)
+    {
+        parent::fill($attributes);
+
+        if ($type = $this->resolveType()) {
+            $this->applyTypeCharacteristics($type);
+        }
+    }
+
     /**
      * @param string $type
      */
@@ -123,10 +129,6 @@ trait SingleTableInheritance
             );
     }
 
-    public function handleSaved()
-    {
-    }
-
     public function getMorphClass(): string
     {
         return self::class;
@@ -153,7 +155,7 @@ trait SingleTableInheritance
         return Str::snake(class_basename(self::class)) . '_' . $this->getKeyName();
     }
 
-    public function getModelClassViaAttributes($attributes = []): ?string
+    public function resolveModelClassViaAttributes($attributes = []): ?string
     {
         return $this->resolveTypeViaAttributes($attributes);
     }
@@ -167,14 +169,7 @@ trait SingleTableInheritance
 
     public function getTable(): string
     {
-        if (!isset($this->table)) {
-            return str_replace(
-                '\\',
-                '',
-                Str::snake(Str::plural(class_basename(self::class)))
-            );
-        }
-        return $this->table;
+        return $this->table ?? Str::snake(Str::pluralStudly(class_basename(self::class)));
     }
 
     /**
@@ -184,7 +179,7 @@ trait SingleTableInheritance
     {
         $attributes = (array) $attributes;
 
-        $class = $this->getModelClassViaAttributes($attributes);
+        $class = $this->resolveModelClassViaAttributes($attributes);
 
         $model = class_exists($class) ? new $class : $this;
 
@@ -210,7 +205,7 @@ trait SingleTableInheritance
 
         $attributes = (array) $attributes;
 
-        $class = $this->getModelClassViaAttributes($attributes) ?: static::class;
+        $class = $this->resolveModelClassViaAttributes($attributes) ?: static::class;
 
         $model = new $class($attributes);
 
