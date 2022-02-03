@@ -1,4 +1,4 @@
-# Very short description of the package
+# A single table interitance trait for Eloquent
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 [![Build Status](https://img.shields.io/travis/mannikj/laravel-sti/master.svg?style=flat-square)](https://travis-ci.org/mannikj/laravel-sti)
@@ -30,12 +30,12 @@ Schema::table('table', function (Blueprint $table) {
 });
 ```
 
-### Trait
+### Using the Trait
 
 You need to add the `SingleTableInheritance` trait to your root model class.
 The sub models need to extend the root class.
 
-``` php
+```php
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
 
 class Root {
@@ -46,19 +46,46 @@ class Sub1 extends Root {}
 
 class Sub2 extends Root {}
 ```
+
 For the default usage no other configuration is needed.
 The trait will use the class name of the subclasses as the type, scope the queries accordingly and return the correct instances
-of subclasses all automatically.
+of subclasses automatically.
+
+#### Nested
+
+If you have multiple levels of subclasses and you want the automatic scoping to include all sub types, you need to define the direct subclasses for each model by setting the `stiSubClasses` array property:
+
+```php
+use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
+
+class Root {
+    use SingleTableInheritance;
+
+    protected $stiSubClasses = [
+        Sub1::class, Sub2::class
+    ]
+}
+
+class Sub1 extends Root {
+    protected $stiSubClasses = [
+        Sub3::class
+    ]
+}
+
+class Sub2 extends Root {}
+
+class Sub3 extends Sub1 {}
+```
 
 ### Testing
 
-``` bash
+```bash
 composer test
 ```
 
 ### Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for more information about what has changed recently.
 
 ## Contributing
 
@@ -70,8 +97,8 @@ If you discover any security related issues, please email mannikj@web.de instead
 
 ## Credits
 
-- [Jannik Malken](https://github.com/mannikj)
-- [All Contributors](../../contributors)
+-   [Jannik Malken](https://github.com/mannikj)
+-   [All Contributors](../../contributors)
 
 ## License
 
