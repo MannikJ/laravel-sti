@@ -95,6 +95,8 @@ trait SingleTableInheritance
         if ($type = $this->resolveType()) {
             $this->applyTypeCharacteristics($type);
         }
+
+        return $this;
     }
 
     /**
