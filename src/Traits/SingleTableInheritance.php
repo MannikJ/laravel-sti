@@ -219,6 +219,10 @@ trait SingleTableInheritance
 
         $model->setTable($this->getTable());
 
+        $model->mergeCasts($this->casts);
+
+        $model->fill($attributes);
+
         return $model;
     }
 }
