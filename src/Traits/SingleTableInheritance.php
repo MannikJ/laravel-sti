@@ -75,7 +75,7 @@ trait SingleTableInheritance
 
     public static function resolveTypeViaClass(): ?string
     {
-        return static::isSubClass() ? static::class : null;
+        return static::class;
     }
 
     public function isTypeDirty(): bool

@@ -23,7 +23,7 @@ class Animal extends Model
 
     public function applyTypeCharacteristics($type)
     {
-        $this->category_id = Category::where('config_class', $type)->first()->id;
+        $this->category_id = Category::where('config_class', $type)->first()?->id;
     }
 
     public function scopeSti(Builder $builder)
