@@ -25,7 +25,7 @@ The `STI` facade provides a helper to create the type column.
 
 ```php
 Schema::table('table', function (Blueprint $table) {
-    Blueprint::sti($table)->nullable();
+    $table->sti()->nullable();
 });
 ```
 
