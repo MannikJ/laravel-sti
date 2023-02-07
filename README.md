@@ -2,7 +2,6 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 [![Build Status](https://img.shields.io/travis/mannikj/laravel-sti/master.svg?style=flat-square)](https://travis-ci.org/mannikj/laravel-sti)
-[![Quality Score](https://img.shields.io/scrutinizer/g/mannikj/laravel-sti.svg?style=flat-square)](https://scrutinizer-ci.com/g/mannikj/laravel-sti)
 [![Total Downloads](https://img.shields.io/packagist/dt/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 
 This package provides a trait that makes your eloquent models capable of single table inheritance.
@@ -26,7 +25,7 @@ The `STI` facade provides a helper to create the type column.
 
 ```php
 Schema::table('table', function (Blueprint $table) {
-    \STI::column($table)->nullable();
+    Blueprint::sti($table)->nullable();
 });
 ```
 
@@ -38,7 +37,7 @@ The sub models need to extend the root class.
 ```php
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
 
-class Root {
+class Root extends Model {
     use SingleTableInheritance;
 }
 
@@ -58,7 +57,7 @@ If you have multiple levels of subclasses and you want the automatic scoping to 
 ```php
 use MannikJ\Laravel\SingleTableInheritance\Traits\SingleTableInheritance;
 
-class Root {
+class Root extends Model {
     use SingleTableInheritance;
 
     protected $stiSubClasses = [
