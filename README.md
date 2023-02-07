@@ -21,7 +21,7 @@ composer require mannikj/laravel-sti
 
 The table you want to apply single table inheritance to must incorporate a type column.
 
-The `STI` facade provides a helper to create the type column.
+The package's service provider adds a macro to the Blueprint class to create the type column.
 
 ```php
 Schema::table('table', function (Blueprint $table) {
