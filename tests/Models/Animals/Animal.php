@@ -29,14 +29,12 @@ class Animal extends Model
     public function scopeSti(Builder $builder)
     {
         $builder->whereHas('category', function ($query) use ($builder) {
-            \Log::debug(get_class($builder->getModel()));
             $query->where('categories.config_class', static::class);
         });
     }
 
     public function category()
     {
-        \Log::debug('category');
         return $this->belongsTo(Category::class, 'category_id')->withDefault([
             'config_class' => static::class
         ]);

@@ -1,4 +1,4 @@
-# A single table interitance trait for Eloquent
+# A single table inheritance trait for Eloquent
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mannikj/laravel-sti.svg?style=flat-square)](https://packagist.org/packages/mannikj/laravel-sti)
 [![Build Status](https://img.shields.io/travis/mannikj/laravel-sti/master.svg?style=flat-square)](https://travis-ci.org/mannikj/laravel-sti)
@@ -15,7 +15,7 @@ You can install the package via composer:
 composer require mannikj/laravel-sti
 ```
 
-## Usage
+## Basic Usage
 
 ### Migration
 
@@ -75,6 +75,82 @@ class Sub2 extends Root {}
 
 class Sub3 extends Sub1 {}
 ```
+
+### Advanced Usage
+
+#### Types without fully-qualified classnames
+
+Without any tweaking, the trait assumes that there is a type column storing the fully qualified names of the subclasses. 
+However, if you want to use some other string not directly referencing a class as the type identifier, you can do so by overwriting two functions of the trait:
+
+```php
+    public static function resolveTypeViaClass()
+    {
+        $type = (new \ReflectionClass(static::class))->getShortName();
+        $type = str_replace('Component', '', $type);
+        $type = strtolower($type);
+
+        return static::isSubclass() 
+            ? $type 
+            : null;
+    }
+
+
+    public function resolveModelClassViaAttributes($attributes = [])
+    {
+        $type = $this->resolveTypeViaAttributes($attributes);
+
+        // Map class to type
+        $mapping = [
+            'motif' => MotifComponent::class,
+            'text' => TextComponent::class,
+        ];
+        
+        return $type 
+            ? data_get($mapping, $type) 
+            : static::class;
+    }
+```
+#### Resolving the type based on a related model
+
+You can also tweak the behavior even further so that the type will be determined based on a related model:
+
+```php
+class Animal extends Model
+{
+    use SingleTableInheritance;
+
+    protected $fillable = ['name'];
+
+    public function resolveTypeViaAttributes($attributes = [])
+    {
+        if ($category = Category::find(Arr::get($attributes, 'category_id'))) {
+            return $category->config_class;
+        };
+    }
+
+    public function applyTypeCharacteristics($type)
+    {
+        $this->category_id = Category::where('config_class', $type)->first()?->id;
+    }
+
+    public function scopeSti(Builder $builder)
+    {
+        $builder->whereHas('category', function ($query) use ($builder) {
+            $query->where('categories.config_class', static::class);
+        });
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id')->withDefault([
+            'config_class' => static::class
+        ]);
+    }
+}
+
+```
+
 
 ### Testing
 
