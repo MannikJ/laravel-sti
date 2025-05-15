@@ -117,7 +117,7 @@ trait SingleTableInheritance
         return self::class;
     }
 
-    public function scopeSti(Builder $builder, array $types = null)
+    public function scopeSti(Builder $builder, ?array $types = null)
     {
         $types = $types ?: static::getTypesForScope();
 
